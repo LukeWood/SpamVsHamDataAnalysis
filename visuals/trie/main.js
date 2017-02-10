@@ -21,6 +21,8 @@ var contents = fs.readFileSync("../../data/SMSSpamCollection")
 .map(i=>i.split("\t"))
 .map(i=>i.slice(1).join(" "))
 .map(i=>i.split(" "))
+.map(i=>i.map(j=>j.toLowerCase()))
+.map(i=>i.map(j=>j.replace(/[^a-z]/gi,'')))
 .reduce(function(x,y){
 	Array.prototype.push.apply(x,y);
 	return x;
@@ -32,8 +34,9 @@ contents.forEach(i=>insert(root,i));
 
 function replace__children(n){
 	n._children = Object.keys(n._children).map(i=>n._children[i]);
+	n._children = n._children.sort(function(x,y){return x.name > y.name ? 1 : -1});
 	n._children.forEach(replace__children);
 }
 
 replace__children(root);
-fs.writeFileSync("data.json",JSON.stringify(root));
+fs.writeFileSync("data.json",JSON.stringify([root]));
